@@ -1,0 +1,19 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorPrimaryDark">@color/turquoise</item>
+        <item name="colorAccent">@color/turquoise</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="snackbarStyle">@style/SnackBarStyle</item>
+        <item name="colorControlNormal">@android:color/white</item>
+    </style>
+
+    <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
+        <item name="android:background">@color/gray_3</item>
+    </style>
+
+</resources>

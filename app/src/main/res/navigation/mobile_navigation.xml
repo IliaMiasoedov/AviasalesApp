@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@+id/input_page">
+
+    <fragment
+        android:id="@+id/input_page"
+        android:name="ilya.myasoedov.aviasales.features.presentation.input.InputFragment"
+        android:label="@string/input_page_title"
+        tools:layout="@layout/fragment_input">
+        <action
+            android:id="@+id/open_map"
+            app:destination="@+id/map_page" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/map_page"
+        android:name="ilya.myasoedov.aviasales.features.presentation.map.MapFragment"
+        android:label="@string/map_page_title"
+        tools:layout="@layout/fragment_map">
+        <argument
+            android:name="arg"
+            app:argType="java.io.Serializable"
+            app:nullable="false" />
+    </fragment>
+
+</navigation>

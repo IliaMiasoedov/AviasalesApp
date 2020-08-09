@@ -1,0 +1,19 @@
+<resources>
+
+    <string name="app_name">AviasalesApp</string>
+
+    <!-- Input fragment -->
+    <string name="input_page_title">Choose cities</string>
+    <string name="input_page_button_label">Go!</string>
+    <string name="input_page_from_city_hint">Departure city</string>
+    <string name="input_page_to_city_hint">Arrival city</string>
+    <string name="input_page_wrong_departure_city">Wrong departure city</string>
+    <string name="input_page_wrong_arrival_city">Wrong arrival city</string>
+    <string name="input_page_arrival_city_should_distinct">Arrival city should distinct from departure city</string>
+
+    <!-- Map fragment -->
+    <string name="map_page_title">Map</string>
+    <string name="map_page_menu_refresh_label">Refresh</string>
+
+    <string name="google_maps_key" translatable="false">AIzaSyCz3AfWfPMbKXXZbymdYaAJb1psYOr9G_Y</string>
+</resources>

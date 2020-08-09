@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: "org.jlleitschuh.gradle.ktlint"
+apply plugin: "androidx.navigation.safeargs"
+
+android {
+  compileSdkVersion 29
+  buildToolsVersion "29.0.3"
+
+  defaultConfig {
+    applicationId "ilya.myasoedov.aviasales"
+    minSdkVersion 23
+    targetSdkVersion 29
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  }
+
+  kotlinOptions {
+    freeCompilerArgs = ["-Xallow-result-return-type", "-Xopt-in=kotlin.RequiresOptIn"]
+    jvmTarget = "1.8"
+  }
+
+  buildTypes {
+    debug {
+      buildConfigField "String", "BASE_URL", "\"https://yasen.hotellook.com/\""
+    }
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      buildConfigField "String", "BASE_URL", "\"https://yasen.hotellook.com/\""
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+dependencies {
+  implementation fileTree(dir: "libs", include: ["*.jar"])
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation "androidx.core:core-ktx:$core_version"
+  implementation "androidx.appcompat:appcompat:$appcompat_version"
+  implementation "androidx.recyclerview:recyclerview:$appcompat_version"
+  implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
+
+  //dagger
+  implementation "com.google.dagger:dagger-android:$dagger_version"
+  implementation "com.google.dagger:dagger-android-support:$dagger_version"
+  kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+  kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+  //navigation
+  implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+  implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+
+  //retrofit
+  implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+
+  //gson
+  implementation "com.google.code.gson:gson:$gson_version"
+
+  //map
+  implementation "com.google.android.gms:play-services-maps:$google_map_version"
+  implementation "com.google.maps.android:android-maps-utils:$google_map_utils_version"
+
+  testImplementation 'junit:junit:4.13'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}

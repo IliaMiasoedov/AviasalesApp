@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <color name="turquoise">#009CC4</color>
+  <color name="turquoise_2">#25009CC4</color>
+  <color name="gray">#23000000</color>
+  <color name="gray_2">#88000000</color>
+  <color name="gray_3">#696969</color>
+  <color name="yellow">#DAF6B85C</color>
+</resources>
