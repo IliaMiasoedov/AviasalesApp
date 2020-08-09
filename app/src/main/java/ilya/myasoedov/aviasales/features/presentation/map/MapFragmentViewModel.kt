@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import ilya.myasoedov.aviasales.features.domain.entity.City
-import ilya.myasoedov.aviasales.util.SingleLiveEvent
 import ilya.myasoedov.aviasales.util.computeDistanceAndPointsList
 import ilya.myasoedov.aviasales.util.extensions.toLatLng
 import javax.inject.Inject
