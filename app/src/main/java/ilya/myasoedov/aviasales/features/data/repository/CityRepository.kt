@@ -30,11 +30,25 @@ class CityRepository(
             }
         }
     }
+
+    @Suppress("RemoveExplicitTypeArguments")
+    override suspend fun getCitySuggestions(query: String): Result<List<String>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = client.getCity(query)
+                Result.success(result.cities.map { it.toDomain().city })
+            } catch (e: Exception) {
+                Result.failure<List<String>>(e)
+            }
+        }
+    }
 }
 
 interface ICityRepository {
 
     suspend fun getCity(from: String, to: String): Result<Pair<City, City>>
+
+    suspend fun getCitySuggestions(query: String): Result<List<String>>
 }
 
 class IncorrectDepartureCityException : Throwable("Incorrect departure city")

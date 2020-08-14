@@ -2,19 +2,22 @@ package ilya.myasoedov.aviasales.features.presentation.input
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import ilya.myasoedov.aviasales.R
 import ilya.myasoedov.aviasales.app.BaseFragment
 import ilya.myasoedov.aviasales.features.data.repository.IncorrectArrivalCityException
 import ilya.myasoedov.aviasales.features.data.repository.IncorrectDepartureCityException
 import ilya.myasoedov.aviasales.features.data.repository.TheSameCitiesException
+import ilya.myasoedov.aviasales.features.presentation.map.MapFragmentParam
+import ilya.myasoedov.aviasales.util.extensions.containsIgnoreCase
 import ilya.myasoedov.aviasales.util.extensions.safeNavigate
 
 class InputFragment : BaseFragment<InputFragmentViewModel>() {
@@ -22,8 +25,8 @@ class InputFragment : BaseFragment<InputFragmentViewModel>() {
     private lateinit var inputButton: Button
     private lateinit var departureEditTextLayout: TextInputLayout
     private lateinit var arrivalEditTextLayout: TextInputLayout
-    private lateinit var departureEditText: EditText
-    private lateinit var arrivalEditText: EditText
+    private lateinit var departureEditText: MaterialAutoCompleteTextView
+    private lateinit var arrivalEditText: MaterialAutoCompleteTextView
     private lateinit var progressBar: ProgressBar
 
     override fun layoutRes(): Int = R.layout.fragment_input
@@ -42,9 +45,11 @@ class InputFragment : BaseFragment<InputFragmentViewModel>() {
 
     private fun setListeners() {
         departureEditText.doAfterTextChanged {
+            viewModel.getDepartureCitySuggestions(it.toString())
             processOnTextChangedAction()
         }
         arrivalEditText.doAfterTextChanged {
+            viewModel.getArrivalCitySuggestions(it.toString())
             processOnTextChangedAction()
         }
         inputButton.setOnClickListener {
@@ -57,7 +62,13 @@ class InputFragment : BaseFragment<InputFragmentViewModel>() {
 
     private fun observe() {
         viewModel.cityResultLiveData.observe(viewLifecycleOwner, Observer { result ->
-            findNavController().safeNavigate(InputFragmentDirections.openMap(result))
+            findNavController().safeNavigate(
+                InputFragmentDirections.openMap(
+                    MapFragmentParam(
+                        result.first, result.second
+                    )
+                )
+            )
         })
         viewModel.errorLiveData.observe(viewLifecycleOwner, Observer { error ->
             processError(error)
@@ -66,13 +77,34 @@ class InputFragment : BaseFragment<InputFragmentViewModel>() {
             progressBar.visibility = if (progress) View.VISIBLE else View.GONE
             inputButton.visibility = if (progress) View.INVISIBLE else View.VISIBLE
         })
+        viewModel.arrivalCitySuggestionsLiveData.observe(viewLifecycleOwner, Observer {
+            arrivalEditText.setCitiesData(it)
+        })
+        viewModel.departureCitySuggestionsLiveData.observe(viewLifecycleOwner, Observer {
+            departureEditText.setCitiesData(it)
+        })
+    }
+
+    private fun MaterialAutoCompleteTextView.setCitiesData(list: List<String>) {
+        setAdapter(ArrayAdapter(context, R.layout.item_list, list))
     }
 
     private fun processOnTextChangedAction() {
         departureEditTextLayout.isErrorEnabled = false
         arrivalEditTextLayout.isErrorEnabled = false
-        inputButton.isEnabled =
-            departureEditText.text.isNotEmpty() && arrivalEditText.text.isNotEmpty()
+        val arrivalList = viewModel.arrivalCitySuggestionsLiveData.value
+        val departureList = viewModel.departureCitySuggestionsLiveData.value
+        val isValidArrivalCity = if (!arrivalList.isNullOrEmpty()) {
+            arrivalList.containsIgnoreCase(arrivalEditText.text.toString())
+        } else {
+            false
+        }
+        val isValidDepartureCity = if (!departureList.isNullOrEmpty()) {
+            departureList.containsIgnoreCase(departureEditText.text.toString())
+        } else {
+            false
+        }
+        inputButton.isEnabled = isValidArrivalCity && isValidDepartureCity
     }
 
     private fun processError(error: Throwable) {

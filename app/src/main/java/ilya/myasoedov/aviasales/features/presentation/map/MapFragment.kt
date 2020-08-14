@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -32,17 +33,20 @@ private const val POLYLINE_GAP_WIDTH = 20f
 
 class MapFragment : BaseFragment<MapFragmentViewModel>(), OnMapReadyCallback {
 
+    private val args: MapFragmentArgs by navArgs()
+
     private lateinit var googleMap: GoogleMap
     private lateinit var toolbar: Toolbar
     private lateinit var planeMarker: Marker
-    private lateinit var data: Pair<City, City>
+
+    private lateinit var data: MapFragmentParam
 
     override fun layoutRes(): Int = R.layout.fragment_map
 
     @Suppress("UNCHECKED_CAST")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        data = viewModel.data
+        data = args.arg
 
         toolbar = view.findViewById(R.id.fragment_map_toolbar)
 
@@ -63,11 +67,11 @@ class MapFragment : BaseFragment<MapFragmentViewModel>(), OnMapReadyCallback {
             drawPolyLine(list)
             viewModel.launchAnimationIfNeeded()
         })
-        viewModel.planePositionLiveData.observe(viewLifecycleOwner, Observer { position ->
-            planeMarker.position = position
-        })
-        viewModel.planeRotationLiveData.observe(viewLifecycleOwner, Observer { rotation ->
-            planeMarker.rotation = rotation - googleMap.cameraPosition.bearing
+        viewModel.planeVectorLiveData.observe(viewLifecycleOwner, Observer { v ->
+            planeMarker.apply {
+                position = v.point
+                rotation = v.heading - googleMap.cameraPosition.bearing
+            }
         })
         viewModel.isBigRouteLiveData.observe(viewLifecycleOwner, Observer { isBigRoute ->
             if (!isBigRoute) {
@@ -85,8 +89,8 @@ class MapFragment : BaseFragment<MapFragmentViewModel>(), OnMapReadyCallback {
     }
 
     private fun setupMap() {
-        val dispatcherCity = data.first
-        val arrivalCity = data.second
+        val dispatcherCity = data.from
+        val arrivalCity = data.to
 
         googleMap.addMarker(createCityMarker(dispatcherCity))
         googleMap.addMarker(createCityMarker(arrivalCity))
@@ -94,8 +98,8 @@ class MapFragment : BaseFragment<MapFragmentViewModel>(), OnMapReadyCallback {
     }
 
     private fun boundMap() {
-        val departureCityLatLng = data.first.location.toLatLng()
-        val arrivalCityLatLng = data.second.location.toLatLng()
+        val departureCityLatLng = data.from.location.toLatLng()
+        val arrivalCityLatLng = data.to.location.toLatLng()
         val bounds =
             LatLngBounds.builder().include(departureCityLatLng).include(arrivalCityLatLng).build()
 
@@ -103,7 +107,6 @@ class MapFragment : BaseFragment<MapFragmentViewModel>(), OnMapReadyCallback {
         val height = resources.displayMetrics.heightPixels
         val padding = (width * 0.2).toInt()
 
-        googleMap.setLatLngBoundsForCameraTarget(bounds)
         googleMap.moveCamera(
             CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
         )

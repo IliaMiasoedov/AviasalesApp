@@ -5,19 +5,20 @@ import android.animation.ValueAnimator
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.addListener
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.SphericalUtil
+import ilya.myasoedov.aviasales.util.Vector
+import kotlin.math.absoluteValue
 
 private const val ANIMATION_DURATION = 8000L // in mills
+private const val DEGREES_180 = 180f
+private const val DEGREES_360 = 360f
 
 class PlaneAnimationController(
-    private val onPositionListener: (LatLng) -> Unit,
-    private val onRotationListener: (Float) -> Unit
+    private val onChangeVectorListener: (Vector) -> Unit
 ) {
     private var state = State.INIT
-    private var position: LatLng? = null
     private var animator: ValueAnimator? = null
 
-    fun launch(pointsList: Array<LatLng>) {
+    fun launch(pointsList: Array<Vector>) {
         if (state == State.INIT) {
             state = State.PROGRESS
 
@@ -26,15 +27,15 @@ class PlaneAnimationController(
         }
     }
 
-    fun forceLaunch(pointsList: Array<LatLng>) {
+    fun forceLaunch(pointsList: Array<Vector>) {
         reset()
         launch(pointsList)
     }
 
-    private fun createAnimator(pointsList: Array<LatLng>): ValueAnimator {
+    private fun createAnimator(pointsList: Array<Vector>): ValueAnimator {
         return ValueAnimator().apply {
             setObjectValues(*pointsList)
-            setEvaluator(LatLngEvaluator())
+            setEvaluator(VectorEvaluator())
             duration = ANIMATION_DURATION
             addUpdateListener(this@PlaneAnimationController::processUpdateAction)
             interpolator = LinearInterpolator()
@@ -51,21 +52,36 @@ class PlaneAnimationController(
     }
 
     private fun processUpdateAction(v: ValueAnimator) {
-        val newPosition = v.animatedValue as LatLng
-        position?.let {
-            onRotationListener(
-                SphericalUtil.computeHeading(it, newPosition).toFloat()
-            )
-        }
-        position = newPosition
-        onPositionListener(newPosition)
+        onChangeVectorListener(v.animatedValue as Vector)
     }
 
-    private inner class LatLngEvaluator : TypeEvaluator<LatLng> {
-        override fun evaluate(t: Float, startValue: LatLng, endValue: LatLng): LatLng {
-            val lat = (1 - t) * startValue.latitude + t * endValue.latitude
-            val lon = (1 - t) * startValue.longitude + t * endValue.longitude
-            return LatLng(lat, lon)
+    private fun computeRotation(t: Float, start: Float, end: Float): Float {
+        val diff = DEGREES_360 - (start - end).absoluteValue
+        return if (start < 0 && end > 0 && (start - end).absoluteValue > DEGREES_180) {
+            if (t >= 0 && t <= (DEGREES_180 + start).absoluteValue / diff) {
+                start - t * diff
+            } else {
+                DEGREES_180 - t * diff
+            }
+        } else if (start > 0 && end < 0 && (start - end).absoluteValue > DEGREES_180) {
+            if (t >= 0 && t < (DEGREES_180 - start).absoluteValue / diff) {
+                start + t * diff
+            } else {
+                -DEGREES_180 - t * diff
+            }
+        } else {
+            (1 - t) * start + t * end
+        }
+    }
+
+    private inner class VectorEvaluator : TypeEvaluator<Vector> {
+        override fun evaluate(t: Float, startValue: Vector, endValue: Vector): Vector {
+            val lat = (1 - t) * startValue.point.latitude + t * endValue.point.latitude
+            val lon = (1 - t) * startValue.point.longitude + t * endValue.point.longitude
+            return Vector(
+                LatLng(lat, lon),
+                computeRotation(t, startValue.heading, endValue.heading)
+            )
         }
     }
 }

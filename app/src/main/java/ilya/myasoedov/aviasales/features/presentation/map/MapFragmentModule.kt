@@ -5,7 +5,6 @@ import dagger.Provides
 import ilya.myasoedov.aviasales.di.Provider
 import ilya.myasoedov.aviasales.di.qualifier.ScreenScope
 import ilya.myasoedov.aviasales.di.qualifier.ViewModelInjection
-import ilya.myasoedov.aviasales.features.domain.entity.City
 
 @Module
 class MapFragmentModule {
@@ -13,8 +12,8 @@ class MapFragmentModule {
     @Suppress("UNCHECKED_CAST")
     @Provides
     @ScreenScope
-    fun provideMapFragmentArgs(fragment: MapFragment): Pair<City, City> {
-        return MapFragmentArgs.fromBundle(fragment.requireArguments()).arg as Pair<City, City>
+    fun provideMapFragmentArgs(fragment: MapFragment): MapFragmentParam {
+        return MapFragmentArgs.fromBundle(fragment.requireArguments()).arg
     }
 
     @Provides
