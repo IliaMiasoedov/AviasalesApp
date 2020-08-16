@@ -22,7 +22,7 @@
         tools:layout="@layout/fragment_map">
         <argument
             android:name="arg"
-            app:argType="java.io.Serializable"
+            app:argType="ilya.myasoedov.aviasales.features.presentation.map.MapFragmentParam"
             app:nullable="false" />
     </fragment>
 

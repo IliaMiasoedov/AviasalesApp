@@ -1,12 +1,12 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@android:color/white</item>
-        <item name="colorPrimaryDark">@color/turquoise</item>
+        <item name="colorPrimary">@color/turquoise</item>
         <item name="colorAccent">@color/turquoise</item>
         <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">@color/turquoise</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="snackbarStyle">@style/SnackBarStyle</item>
         <item name="colorControlNormal">@android:color/white</item>
@@ -14,6 +14,10 @@
 
     <style name="SnackBarStyle" parent="Widget.MaterialComponents.Snackbar">
         <item name="android:background">@color/gray_3</item>
+    </style>
+
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/turquoise</item>
     </style>
 
 </resources>

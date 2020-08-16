@@ -9,20 +9,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
-private const val POINTS_NUMBER = 30
+private const val POINTS_NUMBER = 200
 
 @Suppress("RemoveExplicitTypeArguments")
 @OptIn(ExperimentalCoroutinesApi::class)
-suspend fun computeDistanceAndPointsList(from: LatLng, to: LatLng): Pair<List<LatLng>, Double> {
+suspend fun computeDistanceAndVectorsList(from: LatLng, to: LatLng): Pair<List<Vector>, Double> {
     return withContext(Dispatchers.IO) {
-        suspendCancellableCoroutine<Pair<List<LatLng>, Double>> { continuation ->
-            val result = mutableListOf<LatLng>()
+        suspendCancellableCoroutine<Pair<List<Vector>, Double>> { continuation ->
+            val result = mutableListOf<Vector>()
             val distance = SphericalUtil.computeDistanceBetween(from, to)
             val heading = SphericalUtil.computeHeading(from, to)
+            val latStep = (to.latitude - from.latitude) / POINTS_NUMBER
+            val lonStep = (to.longitude - from.longitude) / POINTS_NUMBER
+
+            var prevPoint: LatLng? = null
 
             for (index in 0 until POINTS_NUMBER) {
-                val latStep = (to.latitude - from.latitude) / POINTS_NUMBER
-                val lonStep = (to.longitude - from.longitude) / POINTS_NUMBER
                 val point =
                     LatLng(
                         from.latitude + index * latStep,
@@ -34,9 +36,18 @@ suspend fun computeDistanceAndPointsList(from: LatLng, to: LatLng): Pair<List<La
                     distance / 8 * sin(2 * PI * x / distance),
                     heading + 90
                 )
-                result.add(offsetPoint)
+                prevPoint?.let {
+                    result.add(
+                        Vector(it, SphericalUtil.computeHeading(it, offsetPoint).toFloat())
+                    )
+                }
+                prevPoint = offsetPoint
             }
-            result.add(to)
+            prevPoint?.let {
+                val h = SphericalUtil.computeHeading(it, to).toFloat()
+                val list = listOf(Vector(it, h), Vector(to, h))
+                result.addAll(list)
+            }
 
             continuation.resume(Pair(result, distance)) {
                 return@resume
@@ -44,3 +55,8 @@ suspend fun computeDistanceAndPointsList(from: LatLng, to: LatLng): Pair<List<La
         }
     }
 }
+
+data class Vector(
+    val point: LatLng,
+    val heading: Float
+)
