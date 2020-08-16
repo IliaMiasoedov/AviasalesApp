@@ -9,7 +9,6 @@ import ilya.myasoedov.aviasales.di.qualifier.ViewModelInjection
 @Module
 class MapFragmentModule {
 
-    @Suppress("UNCHECKED_CAST")
     @Provides
     @ScreenScope
     fun provideMapFragmentArgs(fragment: MapFragment): MapFragmentParam {
